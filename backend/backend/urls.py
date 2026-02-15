@@ -15,8 +15,33 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from rest_framework.routers import DefaultRouter
+from products.views import CategoryViewSet, ProductViewSet, ReviewViewSet, ProductFileUploadView
+from orders.views import OrderViewSet, CartViewSet
+from users.views import RegisterView, CustomAuthToken, UserViewSet
+
+router = DefaultRouter()
+router.register(r'categories', CategoryViewSet)
+router.register(r'products', ProductViewSet)
+router.register(r'reviews', ReviewViewSet)
+router.register(r'orders', OrderViewSet, basename='order')
+router.register(r'users', UserViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/', include(router.urls)),
+    path('api/cart/', CartViewSet.as_view({'get': 'list'})),
+    path('api/cart/add/', CartViewSet.as_view({'post': 'add_item'})),
+    path('api/cart/remove/', CartViewSet.as_view({'post': 'remove_item'})),
+    path('api/cart/update/', CartViewSet.as_view({'post': 'update_quantity'})),
+    path('api/cart/checkout/', CartViewSet.as_view({'post': 'checkout'})),
+    path('api/register/', RegisterView.as_view(), name='register'),
+    path('api/login/', CustomAuthToken.as_view(), name='login'),
+    path('api/upload-file/', ProductFileUploadView.as_view(), name='upload-file'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

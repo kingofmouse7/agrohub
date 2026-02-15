@@ -7,13 +7,13 @@ class Category(models.Model):
     slug = models.SlugField(unique=True)
     description = models.TextField(blank=True)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
-
+    
     class Meta:
         verbose_name_plural = "Categories"
-
+    
     def __str__(self):
         return self.name
-    
+
 class Product(models.Model):
     UNIT_CHOICES = (
         ('kg', 'Килограмм'),
@@ -21,7 +21,7 @@ class Product(models.Model):
         ('ton', 'Тонна'),
         ('litre', 'Литр'),
     )
-
+    
     seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name='products', limit_choices_to={'role': 'seller'})
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
     name = models.CharField(max_length=200)
@@ -34,7 +34,7 @@ class Product(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     def __str__(self):
         return self.name
     
@@ -43,15 +43,24 @@ class Product(models.Model):
     
 class Review(models.Model):
     RATING_CHOICES = [(i, str(i)) for i in range(1, 6)]
-
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
     rating = models.PositiveSmallIntegerField(choices=RATING_CHOICES)
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-
+    
     class Meta:
-        unique_together = ['user', 'product']
-
-        def __str__(self):
-            return f"Review by {self.user.username} for {self.product.name}"
+        unique_together = ['user', 'product']  # один пользователь - один отзыв на товар
+    
+    def __str__(self):
+        return f"Review by {self.user.username} for {self.product.name}"
+    
+class ProductFile(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='files')
+    file = models.FileField(upload_to='product_files/')
+    name = models.CharField(max_length=100)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.name
