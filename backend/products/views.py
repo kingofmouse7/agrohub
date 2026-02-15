@@ -57,8 +57,7 @@ class ProductFileUploadView(generics.CreateAPIView):
             raise PermissionDenied("product_id is required")
             
         product = get_object_or_404(Product, id=product_id)
-        
-        # Проверяем, что пользователь - продавец этого товара
+
         if product.seller != self.request.user:
             raise PermissionDenied("You can only add files to your own products")
             
