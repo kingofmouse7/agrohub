@@ -1,0 +1,53 @@
+### Регистрация
+POST http://127.0.0.1:8000/api/register/
+Content-Type: application/json
+
+{
+    "username": "seller_for_products",
+    "email": "seller_prod@mail.ru",
+    "password": "sellerpass123",
+    "role": "seller"
+}
+
+### Логин
+POST http://127.0.0.1:8000/api/login/
+Content-Type: application/json
+
+{
+    "username": "seller_for_products",
+    "password": "sellerpass123"
+}
+
+### Посмотреть корзину (требуется токен)
+GET http://127.0.0.1:8000/api/cart/
+Authorization: Token 49df39d863846c82530788c56f4e1d1431751581
+
+### Создать категорию "Овощи"
+POST http://127.0.0.1:8000/api/categories/
+Content-Type: application/json
+Authorization: Token 49df39d863846c82530788c56f4e1d1431751581
+
+{
+    "name": "Овощи",
+    "slug": "vegetables",
+    "description": "Свежие овощи от фермеров"
+}
+
+### Создать товар
+POST http://127.0.0.1:8000/api/products/
+Content-Type: application/json
+Authorization: Token 49df39d863846c82530788c56f4e1d1431751581
+
+{
+    "name": "Картошка молодая",
+    "slug": "young-potato-456",
+    "description": "Свежая молодая картошка с поля",
+    "price": 50.00,
+    "stock": 1000,
+    "unit": "kg",
+    "category": 1,
+    "is_active": true
+}
+
+###проверитт категории
+GET http://127.0.0.1:8000/api/categories/
