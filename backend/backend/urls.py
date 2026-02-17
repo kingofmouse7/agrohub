@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 from rest_framework.routers import DefaultRouter
 from products.views import CategoryViewSet, ProductViewSet, ReviewViewSet, ProductFileUploadView
 from orders.views import OrderViewSet, CartViewSet
-from users.views import RegisterView, CustomAuthToken, UserViewSet
+from users.views import RegisterView, CustomAuthToken, UserViewSet, UserProfileView
 
 router = DefaultRouter()
 router.register(r'categories', CategoryViewSet)
@@ -41,6 +41,7 @@ urlpatterns = [
     path('api/register/', RegisterView.as_view(), name='register'),
     path('api/login/', CustomAuthToken.as_view(), name='login'),
     path('api/upload-file/', ProductFileUploadView.as_view(), name='upload-file'),
+    path('api/profile/', UserProfileView.as_view(), name='user-profile'),
 ]
 
 if settings.DEBUG:

@@ -10,6 +10,7 @@ class User(AbstractUser):
     
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='buyer')
     phone = models.CharField(max_length=20, blank=True)
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)  # новое поле
     
     def __str__(self):
         return f"{self.username} ({self.get_role_display()})"

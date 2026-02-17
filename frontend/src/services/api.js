@@ -9,7 +9,29 @@ const api = axios.create({
   },
 });
 
+// Добавляем токен к каждому запросу, если он есть
 api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Token ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Специальный экземпляр для загрузки файлов (мультипарт)
+export const apiForm = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'multipart/form-data',
+  },
+});
+
+apiForm.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {

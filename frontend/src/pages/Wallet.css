@@ -1,0 +1,246 @@
+.wallet-page {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem 4rem 1rem;
+}
+
+.wallet-title {
+  font-size: 2.5rem;
+  color: #2c5e2e;
+  margin-bottom: 2rem;
+  font-family: 'Russo One', sans-serif;
+  text-align: center;
+}
+
+.wallet-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.wallet-balance-card,
+.wallet-deposit-card,
+.wallet-transactions-card {
+  background: #fff8e7;
+  border: 3px solid #8b5a2b;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.wallet-balance-card {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.balance-icon {
+  font-size: 4rem;
+  background: #f0e6d2;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #ffd700;
+}
+
+.balance-info {
+  flex: 1;
+}
+
+.balance-label {
+  display: block;
+  font-size: 1.2rem;
+  color: #6b431d;
+  margin-bottom: 0.5rem;
+}
+
+.balance-amount {
+  display: block;
+  font-size: 3rem;
+  font-weight: bold;
+  color: #2c5e2e;
+}
+
+.wallet-deposit-card h2,
+.wallet-transactions-card h2 {
+  color: #2c5e2e;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #ffd700;
+}
+
+.deposit-form {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.deposit-input-group {
+  flex: 1;
+  position: relative;
+}
+
+.deposit-input {
+  width: 100%;
+  padding: 1rem;
+  padding-right: 3rem;
+  border: 2px solid #8b5a2b;
+  border-radius: 6px;
+  font-size: 1.2rem;
+}
+
+.deposit-input:focus {
+  outline: none;
+  border-color: #ffd700;
+}
+
+.deposit-currency {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b431d;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.deposit-btn {
+  padding: 1rem 2rem;
+  background: #2c5e2e;
+  color: white;
+  border: 2px solid #ffd700;
+  border-radius: 6px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.deposit-btn:hover:not(:disabled) {
+  background: #1e3a1e;
+  transform: scale(1.02);
+}
+
+.deposit-btn:disabled {
+  background: #ccc;
+  border-color: #999;
+  cursor: not-allowed;
+}
+
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.transaction-item {
+  display: grid;
+  grid-template-columns: 100px 1fr 120px;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #ffd700;
+  border-radius: 6px;
+  align-items: center;
+}
+
+.transaction-item.deposit {
+  background: #e8f5e8;
+}
+
+.transaction-item.payment {
+  background: #ffebee;
+}
+
+.transaction-date {
+  color: #6b431d;
+  font-size: 0.9rem;
+}
+
+.transaction-description {
+  color: #4a4a4a;
+}
+
+.transaction-amount {
+  font-weight: bold;
+  text-align: right;
+}
+
+.transaction-amount.positive {
+  color: #2c5e2e;
+}
+
+.transaction-amount.negative {
+  color: #dc3545;
+}
+
+.no-transactions {
+  text-align: center;
+  color: #6b431d;
+  padding: 2rem;
+  font-style: italic;
+}
+
+.wallet-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.wallet-action-btn {
+  padding: 1rem 2rem;
+  background: #fff8e7;
+  color: #2c5e2e;
+  text-decoration: none;
+  border: 2px solid #8b5a2b;
+  border-radius: 6px;
+  transition: all 0.3s;
+  font-weight: bold;
+}
+
+.wallet-action-btn:hover {
+  background: #2c5e2e;
+  color: white;
+  border-color: #ffd700;
+}
+
+.wallet-loading {
+  text-align: center;
+  padding: 4rem;
+}
+
+@media (max-width: 600px) {
+  .wallet-balance-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .deposit-form {
+    flex-direction: column;
+  }
+  
+  .deposit-btn {
+    width: 100%;
+  }
+  
+  .transaction-item {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+  }
+  
+  .transaction-amount {
+    text-align: left;
+  }
+  
+  .wallet-actions {
+    flex-direction: column;
+  }
+  
+  .wallet-action-btn {
+    text-align: center;
+  }
+}
