@@ -1,6 +1,6 @@
 .categories-page {
   width: 100%;
-  padding: 2rem 0;
+  padding: 2rem 0 4rem 0;  /* добавил 4rem снизу */
 }
 
 .categories-title {

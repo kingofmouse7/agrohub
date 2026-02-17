@@ -57,9 +57,16 @@
 }
 
 .user-name {
-  color: #ffd700;
+  color: #ffd700 !important;
   text-decoration: none;
   font-weight: bold;
+  font-size: 1.1rem;
+  background-color: transparent !important;
+}
+
+.user-name:hover {
+  color: white !important;
+  text-decoration: underline;
 }
 
 .logout-btn {
@@ -83,16 +90,26 @@
 }
 
 .auth-link {
-  color: #f5e6d3;
+  color: #ffd700 !important;  /* ЯРКО-ЗОЛОТОЙ */
   text-decoration: none;
+  font-weight: bold;
+  font-size: 1.1rem;
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0.3rem 0.5rem;
+  transition: all 0.3s;
 }
 
 .auth-link:hover {
-  color: #ffd700;
+  color: white !important;
+  text-decoration: underline;
+  transform: scale(1.05);
 }
 
 .auth-separator {
-  color: #f5e6d3;
+  color: #ffd700 !important;  /* тоже золотой */
+  font-weight: bold;
+  font-size: 1.2rem;
 }
 
 @media (max-width: 768px) {
