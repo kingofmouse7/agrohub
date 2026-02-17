@@ -67,43 +67,54 @@ const Cart = () => {
   };
 
   const handleCheckout = async () => {
-    if (!cart?.items?.length) {
-      alert('Корзина пуста');
+  if (!cart?.items?.length) {
+    alert('Корзина пуста');
+    return;
+  }
+
+  // Проверяем баланс
+  if (cart.total > (user?.balance || 0)) {
+    alert('Недостаточно средств на кошельке. Пополните баланс.');
+    navigate('/wallet');
+    return;
+  }
+
+  setCheckoutLoading(true);
+  try {
+    const address = prompt('Введите адрес доставки:');
+    if (!address) {
+      setCheckoutLoading(false);
       return;
     }
 
-    setCheckoutLoading(true);
-    try {
-      // Здесь можно показать модалку с адресом доставки
-      const address = prompt('Введите адрес доставки:');
-      if (!address) {
-        setCheckoutLoading(false);
-        return;
-      }
-
-      const paymentMethod = prompt('Способ оплаты (card/cash):', 'card');
-      if (!paymentMethod || !['card', 'cash'].includes(paymentMethod)) {
-        alert('Выберите card или cash');
-        setCheckoutLoading(false);
-        return;
-      }
-
-      const response = await api.post('cart/checkout/', {
-        shipping_address: address,
-        payment_method: paymentMethod
-      });
-
-      if (response.status === 201) {
-        alert('Заказ успешно оформлен!');
-        navigate('/profile'); // переходим в профиль к заказам
-      }
-    } catch (err) {
-      console.error('Ошибка оформления:', err);
-      alert('Не удалось оформить заказ');
-    } finally {
+    const paymentMethod = prompt('Способ оплаты (card/cash):', 'card');
+    if (!paymentMethod || !['card', 'cash'].includes(paymentMethod)) {
+      alert('Выберите card или cash');
       setCheckoutLoading(false);
+      return;
     }
-  };
+
+    const response = await api.post('cart/checkout/', {
+      shipping_address: address,
+      payment_method: paymentMethod
+    });
+
+    if (response.status === 201) {
+      // Списываем деньги (на бэкенде)
+      alert(`Заказ успешно оформлен! Сумма ${cart.total} ₽ списана с кошелька.`);
+      navigate('/profile');
+    }
+  } catch (err) {
+    console.error('Ошибка оформления:', err);
+    if (err.response?.data?.error) {
+      alert(err.response.data.error);
+    } else {
+      alert('Не удалось оформить заказ');
+    }
+  } finally {
+    setCheckoutLoading(false);
+  }
+};
 
   if (loading) {
     return (
@@ -178,30 +189,48 @@ const Cart = () => {
         </div>
         
         <div className="cart-summary">
-          <h2>Итого</h2>
-          
-          <div className="summary-row">
-            <span>Товаров:</span>
-            <span>{cart.items.reduce((sum, item) => sum + item.quantity, 0)} шт</span>
-          </div>
-          
-          <div className="summary-row total">
-            <span>Сумма:</span>
-            <span>{cart.total} ₽</span>
-          </div>
-          
-          <button 
-            onClick={handleCheckout}
-            disabled={checkoutLoading || cart.items.length === 0}
-            className="checkout-btn"
-          >
-            {checkoutLoading ? 'Оформление...' : 'Оформить заказ'}
-          </button>
-          
-          <Link to="/categories" className="continue-shopping-link">
-            Продолжить покупки
-          </Link>
-        </div>
+  <h2>Итого</h2>
+  
+  <div className="summary-row">
+    <span>Товаров:</span>
+    <span>{cart.items.reduce((sum, item) => sum + item.quantity, 0)} шт</span>
+  </div>
+  
+  <div className="summary-row">
+    <span>Сумма заказа:</span>
+    <span>{cart.total} ₽</span>
+  </div>
+  
+  <div className="summary-row">
+    <span>Ваш баланс:</span>
+    <span className={user?.balance >= cart.total ? 'balance-sufficient' : 'balance-insufficient'}>
+      {user?.balance || 0} ₽
+    </span>
+  </div>
+  
+  <div className="summary-row total">
+    <span>К оплате:</span>
+    <span>{cart.total} ₽</span>
+  </div>
+  
+  {user?.balance < cart.total && (
+    <div className="balance-warning">
+      Недостаточно средств. <Link to="/wallet">Пополнить кошелёк</Link>
+    </div>
+  )}
+  
+  <button 
+    onClick={handleCheckout}
+    disabled={checkoutLoading || cart.items.length === 0 || user?.balance < cart.total}
+    className="checkout-btn"
+  >
+    {checkoutLoading ? 'Оформление...' : 'Оформить заказ'}
+  </button>
+  
+  <Link to="/categories" className="continue-shopping-link">
+    Продолжить покупки
+  </Link>
+</div>
       </div>
     </div>
   );
