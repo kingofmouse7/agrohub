@@ -1,0 +1,130 @@
+.product-card {
+  background: #fff8e7;
+  border: 2px solid #8b5a2b;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(139, 90, 43, 0.3);
+  border-color: #ffd700;
+}
+
+.product-image {
+  height: 200px;
+  background-color: #f0e6d2;
+  position: relative;
+  border-bottom: 2px solid #8b5a2b;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.no-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: #8b5a2b;
+}
+
+.product-status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #dc3545;
+  color: white;
+  padding: 0.2rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.product-info {
+  padding: 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #2c5e2e;
+  text-decoration: none;
+  margin-bottom: 0.5rem;
+}
+
+.product-name:hover {
+  color: #ffd700;
+}
+
+.product-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.product-price {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #8b5a2b;
+}
+
+.product-stock {
+  font-size: 0.9rem;
+  color: #2c5e2e;
+  background: #e8f5e8;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.product-description {
+  color: #4a4a4a;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.product-seller {
+  font-size: 0.9rem;
+  color: #6b431d;
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.add-to-cart-btn {
+  background: #2c5e2e;
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 1px solid #ffd700;
+}
+
+.add-to-cart-btn:hover:not(:disabled) {
+  background: #1e3a1e;
+  transform: scale(1.02);
+}
+
+.add-to-cart-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  border-color: #999;
+}
