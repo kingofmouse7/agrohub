@@ -281,34 +281,34 @@ const Profile = () => {
 
         {/* Блок с заказами */}
         <div className="profile-card">
-          <h2 className="profile-section-title">📦 Мои заказы</h2>
-          
-          {orders.length === 0 ? (
-            <p className="profile-empty">У вас пока нет заказов</p>
-          ) : (
-            <div className="orders-list">
-              {orders.map(order => (
-                <div key={order.id} className="order-item">
-                  <div className="order-header">
-                    <span className="order-id">Заказ №{order.id}</span>
-                    <span className={`order-status status-${order.status}`}>
-                      {order.status === 'pending' && 'Ожидает оплаты'}
-                      {order.status === 'paid' && 'Оплачен'}
-                      {order.status === 'shipped' && 'Отправлен'}
-                      {order.status === 'delivered' && 'Доставлен'}
-                      {order.status === 'cancelled' && 'Отменён'}
-                    </span>
-                  </div>
-                  <div className="order-details">
-                    <p>Дата: {new Date(order.created_at).toLocaleDateString()}</p>
-                    <p>Сумма: {order.total_price} ₽</p>
-                    <p>Товаров: {order.items?.length || 0}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+  <h2 className="profile-section-title">📦 Мои заказы</h2>
+  
+  {orders.length === 0 ? (
+    <p className="profile-empty">У вас пока нет заказов</p>
+  ) : (
+    <div className="orders-list">
+      {orders.map(order => (
+        <div key={order.id} className="order-item">
+          <div className="order-header">
+            <span className="order-id">Заказ №{order.id}</span>  {/* ← ВОССТАНОВИЛ ЭТУ СТРОКУ */}
+            <span className={`order-status status-${order.status}`}>
+              {order.status === 'pending' && 'Ожидает оплаты'}
+              {order.status === 'paid' && 'Оплачен ✓'}
+              {order.status === 'shipped' && 'Отправлен'}
+              {order.status === 'delivered' && 'Доставлен'}
+              {order.status === 'cancelled' && 'Отменён'}
+            </span>
+          </div>
+          <div className="order-details">
+            <p>Дата: {new Date(order.created_at).toLocaleDateString()}</p>
+            <p>Сумма: {order.total_price} ₽</p>
+            <p>Товаров: {order.items?.length || 0}</p>
+          </div>
         </div>
+      ))}
+    </div>
+  )}
+</div>
 
         {/* Блок для продавца: его товары */}
         {user?.role === 'seller' && (

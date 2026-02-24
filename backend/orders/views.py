@@ -2,7 +2,8 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
-from .models import Order, Cart, CartItem
+from django.db import transaction
+from .models import Order, OrderItem, Cart, CartItem  # OrderItem добавлен!
 from .serializers import OrderSerializer, CartSerializer, CartItemSerializer
 from products.models import Product
 
@@ -78,31 +79,61 @@ class CartViewSet(viewsets.ViewSet):
     
     @action(detail=False, methods=['post'])
     def checkout(self, request):
+        """Оформление заказа из корзины"""
         cart = self.get_cart(request)
         
         if not cart.items.exists():
-            return Response({'error': 'Cart is empty'}, status=status.HTTP_400_BAD_REQUEST)
-
-        order = Order.objects.create(
-            user=request.user,
-            shipping_address=request.data.get('shipping_address', ''),
-            payment_method=request.data.get('payment_method', 'cash'),
-            total_price=cart.total()
-        )
-
-        for item in cart.items.all():
-            OrderItem.objects.create(
-                order=order,
-                product=item.product,
-                quantity=item.quantity,
-                price=item.product.price
+            return Response(
+                {'error': 'Cart is empty'}, 
+                status=status.HTTP_400_BAD_REQUEST
             )
-
-            product = item.product
-            product.stock -= item.quantity
-            product.save()
-
-        cart.items.all().delete()
+        
+        total = cart.total()
+        if request.user.balance < total:
+            return Response(
+                {'error': 'Insufficient funds'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        with transaction.atomic():
+            # Создаём заказ со статусом "Оплачен"
+            order = Order.objects.create(
+                user=request.user,
+                shipping_address=request.data.get('shipping_address', ''),
+                payment_method=request.data.get('payment_method', 'cash'),
+                total_price=total,
+                status='paid'
+            )
+            
+            for item in cart.items.all():
+                OrderItem.objects.create(
+                    order=order,
+                    product=item.product,
+                    quantity=item.quantity,
+                    price=item.product.price
+                )
+                
+                product = item.product
+                if product.stock < item.quantity:
+                    raise ValueError(f'Not enough stock for {product.name}')
+                product.stock -= item.quantity
+                product.save()
+            
+            # СПИСЫВАЕМ ДЕНЬГИ
+            request.user.balance -= total
+            request.user.save()
+            
+            # 🔥 ДОБАВЛЯЕМ ТРАНЗАКЦИЮ В ИСТОРИЮ
+            from users.models import Transaction  # импортируем модель транзакции
+            Transaction.objects.create(
+                user=request.user,
+                transaction_type='payment',
+                amount=-total,  # отрицательное значение для списания
+                description=f'Оплата заказа №{order.id}'
+            )
+            
+            # Очищаем корзину
+            cart.items.all().delete()
         
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

@@ -42,7 +42,7 @@ const Cart = () => {
         item_id: itemId,
         quantity: newQuantity
       });
-      await fetchCart(); // перезагружаем корзину
+      await fetchCart();
     } catch (err) {
       console.error('Ошибка обновления:', err);
       alert('Не удалось обновить количество');
@@ -94,22 +94,83 @@ const Cart = () => {
       return;
     }
 
+    console.log('Отправляем заказ:', {
+      shipping_address: address,
+      payment_method: paymentMethod
+    });
+
     const response = await api.post('cart/checkout/', {
       shipping_address: address,
       payment_method: paymentMethod
     });
 
-    if (response.status === 201) {
-      // Списываем деньги (на бэкенде)
-      alert(`Заказ успешно оформлен! Сумма ${cart.total} ₽ списана с кошелька.`);
-      navigate('/profile');
-    }
+    console.log('Ответ сервера:', response);
+
+    if (response.status === 201 || response.status === 200) {
+  // Успешное оформление
+  
+  // Получаем свежие данные пользователя
+  try {
+    const userResponse = await api.get('users/me/');
+    const updatedUser = userResponse.data;
+    
+    // Обновляем в localStorage
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    
+    // Если есть функция обновления в контексте - вызываем её
+    // Например: updateUser(updatedUser);
+    
+  } catch (e) {
+    console.error('Error fetching updated user:', e);
+  }
+  
+  alert(`✅ Заказ успешно оформлен! Сумма ${cart.total} ₽ списана с кошелька.`);
+  navigate('/profile');
+}
   } catch (err) {
     console.error('Ошибка оформления:', err);
-    if (err.response?.data?.error) {
-      alert(err.response.data.error);
+    
+    // ПОДРОБНАЯ ДИАГНОСТИКА
+    if (err.response) {
+      // Сервер ответил с ошибкой
+      console.log('Статус ошибки:', err.response.status);
+      console.log('Данные ошибки:', err.response.data);
+      console.log('Заголовки:', err.response.headers);
+      
+      if (err.response.status === 401) {
+        alert('Сессия истекла. Войдите снова.');
+        navigate('/login');
+      } else if (err.response.status === 400) {
+        // Ошибка валидации
+        const errorData = err.response.data;
+        let errorMessage = 'Ошибка в данных: ';
+        
+        if (errorData.error) {
+          errorMessage += errorData.error;
+        } else if (errorData.non_field_errors) {
+          errorMessage += errorData.non_field_errors.join(', ');
+        } else if (errorData.detail) {
+          errorMessage += errorData.detail;
+        } else {
+          errorMessage += JSON.stringify(errorData);
+        }
+        
+        alert(errorMessage);
+      } else if (err.response.status === 403) {
+        alert('У вас нет прав для этого действия');
+      } else if (err.response.status === 404) {
+        alert('Эндпоинт не найден. Проверьте URL /api/cart/checkout/');
+      } else {
+        alert(`Ошибка сервера: ${err.response.status}`);
+      }
+    } else if (err.request) {
+      // Запрос был отправлен, но ответа нет
+      console.log('Нет ответа от сервера:', err.request);
+      alert('Сервер не отвечает. Проверьте соединение.');
     } else {
-      alert('Не удалось оформить заказ');
+      // Ошибка при настройке запроса
+      console.log('Ошибка запроса:', err.message);
+      alert('Ошибка при отправке запроса');
     }
   } finally {
     setCheckoutLoading(false);
@@ -149,7 +210,14 @@ const Cart = () => {
             <div key={item.id} className="cart-item">
               <div className="cart-item-image">
                 {item.product_image ? (
-                  <img src={`http://127.0.0.1:8000${item.product_image}`} alt={item.product_name} />
+                  <img 
+                    src={`http://127.0.0.1:8000${item.product_image}`} 
+                    alt={item.product_name}
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = '<div class="cart-item-placeholder">🌾</div>';
+                    }}
+                  />
                 ) : (
                   <div className="cart-item-placeholder">🌾</div>
                 )}
@@ -157,7 +225,7 @@ const Cart = () => {
               
               <div className="cart-item-info">
                 <h3 className="cart-item-name">{item.product_name}</h3>
-                <p className="cart-item-price">{item.product_price} ₽ / шт</p>
+                <p className="cart-item-price">{item.product_price} ₽ / {item.unit || 'шт'}</p>
               </div>
               
               <div className="cart-item-quantity">
@@ -175,7 +243,7 @@ const Cart = () => {
               </div>
               
               <div className="cart-item-total">
-                <strong>{item.total} ₽</strong>
+                <strong>{(item.product_price * item.quantity).toFixed(2)} ₽</strong>
               </div>
               
               <button 
@@ -189,48 +257,48 @@ const Cart = () => {
         </div>
         
         <div className="cart-summary">
-  <h2>Итого</h2>
-  
-  <div className="summary-row">
-    <span>Товаров:</span>
-    <span>{cart.items.reduce((sum, item) => sum + item.quantity, 0)} шт</span>
-  </div>
-  
-  <div className="summary-row">
-    <span>Сумма заказа:</span>
-    <span>{cart.total} ₽</span>
-  </div>
-  
-  <div className="summary-row">
-    <span>Ваш баланс:</span>
-    <span className={user?.balance >= cart.total ? 'balance-sufficient' : 'balance-insufficient'}>
-      {user?.balance || 0} ₽
-    </span>
-  </div>
-  
-  <div className="summary-row total">
-    <span>К оплате:</span>
-    <span>{cart.total} ₽</span>
-  </div>
-  
-  {user?.balance < cart.total && (
-    <div className="balance-warning">
-      Недостаточно средств. <Link to="/wallet">Пополнить кошелёк</Link>
-    </div>
-  )}
-  
-  <button 
-    onClick={handleCheckout}
-    disabled={checkoutLoading || cart.items.length === 0 || user?.balance < cart.total}
-    className="checkout-btn"
-  >
-    {checkoutLoading ? 'Оформление...' : 'Оформить заказ'}
-  </button>
-  
-  <Link to="/categories" className="continue-shopping-link">
-    Продолжить покупки
-  </Link>
-</div>
+          <h2>Итого</h2>
+          
+          <div className="summary-row">
+            <span>Товаров:</span>
+            <span>{cart.items.reduce((sum, item) => sum + item.quantity, 0)} шт</span>
+          </div>
+          
+          <div className="summary-row">
+            <span>Сумма заказа:</span>
+            <span>{cart.total} ₽</span>
+          </div>
+          
+          <div className="summary-row">
+            <span>Ваш баланс:</span>
+            <span className={user?.balance >= cart.total ? 'balance-sufficient' : 'balance-insufficient'}>
+              {Number(user?.balance || 0).toFixed(2)} ₽
+            </span>
+          </div>
+          
+          <div className="summary-row total">
+            <span>К оплате:</span>
+            <span>{cart.total} ₽</span>
+          </div>
+          
+          {user?.balance < cart.total && (
+            <div className="balance-warning">
+              Недостаточно средств. <Link to="/wallet">Пополнить кошелёк</Link>
+            </div>
+          )}
+          
+          <button 
+            onClick={handleCheckout}
+            disabled={checkoutLoading || cart.items.length === 0 || user?.balance < cart.total}
+            className="checkout-btn"
+          >
+            {checkoutLoading ? 'Оформление...' : 'Оформить заказ'}
+          </button>
+          
+          <Link to="/categories" className="continue-shopping-link">
+            Продолжить покупки
+          </Link>
+        </div>
       </div>
     </div>
   );
