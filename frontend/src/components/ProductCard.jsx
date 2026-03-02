@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { getImageUrl, handleImageError } from '../utils/imageUtils';
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
@@ -30,7 +31,11 @@ const ProductCard = ({ product }) => {
       <Link to={`/product/${product.slug}`} className="product-image-link">
         <div className="product-image">
           {product.image ? (
-            <img src={`http://127.0.0.1:8000${product.image}`} alt={product.name} />
+            <img 
+              src={getImageUrl(product.image)} 
+              alt={product.name}
+              onError={(e) => handleImageError(e, '🌾')}
+            />
           ) : (
             <div className="no-image">🌾</div>
           )}

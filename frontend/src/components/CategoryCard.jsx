@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { getImageUrl } from '../utils/imageUtils';
 import './CategoryCard.css';
 
 const CategoryCard = ({ category }) => {
@@ -28,7 +29,18 @@ const CategoryCard = ({ category }) => {
   return (
     <Link to={`/categories/${category.slug}`} className="category-card">
       <div className="category-icon">
-        {getIcon(category.name)}
+        {category.image ? (
+          <img 
+            src={getImageUrl(category.image)} 
+            alt={category.name}
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.parentElement.innerHTML = getIcon(category.name);
+            }}
+          />
+        ) : (
+          getIcon(category.name)
+        )}
       </div>
       <h3 className="category-name">{category.name}</h3>
       {category.description && (
